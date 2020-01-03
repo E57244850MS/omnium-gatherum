@@ -6,7 +6,7 @@
 
 const WIDTH = 600;
 const HEIGHT = 500;
-const MARGIN = 50;
+const MARGIN = 75;
 
 main();
 
@@ -48,8 +48,7 @@ function showGraph(svg, data) {
     .range([0, WIDTH - MARGIN * 2])
     .paddingInner(.3)
     .paddingOuter(.3);
-  const g = svg.append('g')
-    // .attr('transform', `translate(${ MARGIN }, ${ MARGIN })`)
+  const g = svg.append('g');
   const rects = g
     .selectAll('rect')
     .data(data);
@@ -61,7 +60,8 @@ function showGraph(svg, data) {
     .attr('height', d => (HEIGHT - MARGIN * 2) - scaleY(d.revenue))
     .attr('fill', '#007041');
 
-    const axisLeftCall = d3.axisLeft(scaleY);
+    const axisLeftCall = d3.axisLeft(scaleY)
+      .tickFormat(d => `$${ d }`);
     g.append('g')
       .attr('class', 'y-scale')
       .attr('transform', `translate(${ MARGIN }, ${ MARGIN })`)
@@ -72,4 +72,17 @@ function showGraph(svg, data) {
       .attr('class', 'x-scale')
       .attr('transform', `translate(${ MARGIN }, ${ HEIGHT - MARGIN })`)
       .call(axisBottomCall);
+
+    g.append('text')
+      .attr('x', -HEIGHT / 2)
+      .attr('y', 10)
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'rotate(-90)')
+      .text('Revenue');
+
+    g.append('text')
+      .attr('x', WIDTH / 2)
+      .attr('y', HEIGHT - MARGIN / 3)
+      .attr('text-anchor', 'middle')
+      .text('Month');
   }
