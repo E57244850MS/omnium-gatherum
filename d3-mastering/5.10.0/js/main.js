@@ -4,9 +4,9 @@
 *    Project 2 - Gapminder Clone
 */
 
-const SVG_WIDTH = 600;
-const SVG_HEIGHT = 500;
-const GRAPH_MARGIN = 75;
+const margin = { left:80, right:20, top:50, bottom:100 };
+const height = 500 - margin.top - margin.bottom;
+const width = 800 - margin.left - margin.right;
 
 main();
 
@@ -28,8 +28,8 @@ async function loadData() {
 function prepareGraph() {
   const svg = d3.select('#chart-area').append('svg');
   return svg
-    .attr('width', SVG_WIDTH)
-    .attr('height', SVG_HEIGHT);
+		.attr('width', width + margin.left + margin.right)
+		.attr('height', height + margin.top + margin.bottom);
 }
 
 /*
@@ -48,55 +48,56 @@ data: [
 */
 function showGraph(svg, data) {
 	let index = -1;
-	const maxLifeExp = d3.max(data, ({countries}) => d3.max(countries, c => c.life_exp));
-	const maxIncome = d3.max(data, ({countries}) => d3.max(countries, c => c.income));
-	const maxPopulation = d3.max(data, ({countries}) => d3.max(countries, c => c.population));
+	const allYearCountries = data.reduce((all, item) => all.concat(item.countries), []);
+	const incomeExtent = d3.extent(allYearCountries, c => c.income);
+	const lifeExpExtent = d3.extent(allYearCountries, c => c.life_exp);
+	const populationExtent = d3.extent(allYearCountries, c => c.population);
 
-	console.log(JSON.stringify([maxLifeExp, maxIncome, maxPopulation]));
+	console.log(incomeExtent, lifeExpExtent, populationExtent);
 
   const scaleX = d3.scaleLog()
 		.base(10)
-		// TODO: add real maximum domain
-    .domain([142, 150000])
-    // .domain([142, maxLifeExp])
-		.range([0, SVG_WIDTH - GRAPH_MARGIN * 2]);
+    .domain(incomeExtent)
+		.range([0, width]);
 	const scaleY = d3.scaleLinear()
-		// TODO: add real maximum domain
-    .domain([0, 90])
-    // .domain([0, maxIncome])
-    .range([SVG_HEIGHT - GRAPH_MARGIN * 2, 0]);
+    .domain(lifeExpExtent)
+    .range([height, 0]);
 	const scaleRadius = d3.scaleLinear()
-		.domain([2000, 1400000000])
-		.range([5, 25]);
-  const g = svg.append('g');
-  const circles = g
+		.domain(populationExtent)
+		.range([25 * Math.PI, 1500 * Math.PI]);
+  const g = svg.append('g')
+		.attr('transform', `translate(${ margin.left }, ${ margin.top })`);
+	// TODO: check is it needed?
+	const circles = g
     .selectAll('circle')
-    .data([]);
+		.data([]);
 
-		// TODO: Use TickValues() to manually set our x-axis values of 400, 4,000, and 40,000.
-    // const axisLeftCall = d3.axisLeft(scaleY)
-    //   .tickFormat(d => `$${ d }`);
-    // g.append('g')
-    //   .attr('class', 'y-scale')
-    //   .attr('transform', `translate(${ GRAPH_MARGIN }, ${ GRAPH_MARGIN })`)
-    //   .call(axisLeftCall);
+		// X Axis
+		const axisLeftCall = d3.axisBottom(scaleX)
+			.tickValues([400, 4000, 40000])
+			.tickFormat(d3.format('$'));
+		g.append('g')
+			.attr('class', 'x axis')
+			.attr('transform', `translate(${ 0 }, ${ height })`)
+			.call(axisLeftCall);
 
-    // const axisBottomCall = d3.axisBottom(scaleX);
-    // g.append('g')
-    //   .attr('class', 'x-scale')
-    //   .attr('transform', `translate(${ GRAPH_MARGIN }, ${ SVG_HEIGHT - GRAPH_MARGIN })`)
-    //   .call(axisBottomCall);
+		// Y Axis
+		const axisBottomCall = d3.axisLeft(scaleY)
+			.tickFormat(d => +d);
+		g.append('g')
+			.attr('class', 'y axis')
+			.call(axisBottomCall);
 
     g.append('text')
-      .attr('x', -SVG_HEIGHT / 2)
-      .attr('y', 10)
+      .attr('x', -height / 2)
+      .attr('y', -margin.left / 2)
       .attr('text-anchor', 'middle')
       .attr('transform', 'rotate(-90)')
       .text('life expectancy');
 
     g.append('text')
-      .attr('x', SVG_WIDTH / 2)
-      .attr('y', SVG_HEIGHT - GRAPH_MARGIN / 3)
+      .attr('x', width / 2)
+      .attr('y', height + margin.bottom / 2)
       .attr('text-anchor', 'middle')
       .text('GDP-per-capita');
 
@@ -112,9 +113,6 @@ function showGraph(svg, data) {
 			.selectAll('circle')
 			.data(data[index].countries, item => item.country);
 
-		// console.log(scaleX(10));
-		// console.log(circles);
-		
 		// exits
 		circles.exit()
 			// TODO: add animation here
@@ -125,10 +123,14 @@ function showGraph(svg, data) {
 			.enter()
 			.append('circle')
 			.merge(circles)
-			.attr('cx', d => scaleX(d.income) + GRAPH_MARGIN)
-			.attr('cy', d => scaleY(d.life_exp) + GRAPH_MARGIN  )
+			.attr('cx', d => scaleX(d.income))
+			.attr('cy', d => scaleY(d.life_exp))
 			// A/pi = r^2
-			.attr('r', d => scaleRadius(d.population))
+			.attr('r', d => {
+				// console.log(scaleRadius(d.population));
+				return Math.sqrt(scaleRadius(d.population) / Math.PI)
+				// return scaleRadius(d.population)
+			})
 			// .attr('height', d => (SVG_HEIGHT - GRAPH_MARGIN * 2) - scaleY(d.revenue))
 			.attr('fill', '#007041');
 
