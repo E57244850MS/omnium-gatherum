@@ -4,9 +4,10 @@
 *    Project 2 - Gapminder Clone
 */
 
+const margin = { left: 70, right: 50, top: 50, bottom: 70 };
+const TRANSITION_MS = 1000;
 const chartContainer = document.querySelector('#chart-area');
 const svg = d3.select(chartContainer).append('svg');
-const margin = { left: 70, right: 50, top: 50, bottom: 70 };
 let incomeExtent = null;
 let lifeExpExtent = null;
 let populationExtent = null;
@@ -129,6 +130,9 @@ function showGraph(svg, data) {
 		.attr('text-anchor', 'end')
 		.text(data[0].year);
 
+	const transition = d3.transition()
+
+
 	d3.interval(() => {
 		// update data index
 		index ++;
@@ -153,11 +157,14 @@ function showGraph(svg, data) {
 			.enter()
 			.append('circle')
 			.merge(circles)
-			.attr('cx', d => scaleX(d.income))
-			.attr('cy', d => scaleY(d.life_exp))
-			// A/pi = r^2
-				.attr('r', d => Math.sqrt(scaleRadius(d.population) / Math.PI))
-			.attr('fill', d => continentScale(d.continent));
+			.attr('fill', d => continentScale(d.continent))
+			.transition(transition)
+			.ease(d3.easeSin)
+			.duration(TRANSITION_MS * .5)
+				.attr('cx', d => scaleX(d.income))
+				.attr('cy', d => scaleY(d.life_exp))
+				// A/pi = r^2
+				.attr('r', d => Math.sqrt(scaleRadius(d.population) / Math.PI));
 
-		}, 500);
+		}, TRANSITION_MS);
   }
