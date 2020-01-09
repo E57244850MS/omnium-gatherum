@@ -4,16 +4,28 @@
 *    Project 2 - Gapminder Clone
 */
 
-const margin = { left:80, right:20, top:50, bottom:100 };
-const height = 500 - margin.top - margin.bottom;
-const width = 800 - margin.left - margin.right;
+const chartContainer = document.querySelector('#chart-area');
+const svg = d3.select(chartContainer).append('svg');
+const margin = { left: 70, right: 50, top: 50, bottom: 70 };
+let incomeExtent = null;
+let lifeExpExtent = null;
+let populationExtent = null;
 
 main();
 
 async function main() {
-  const data = await loadData();
-  const svg = prepareGraph();
-  showGraph(svg, data);
+	const data = await loadData();
+
+	// calculate extents
+	const allYearCountries = data.reduce((all, item) => all.concat(item.countries), []);
+	incomeExtent = d3.extent(allYearCountries, c => c.income);
+	lifeExpExtent = d3.extent(allYearCountries, c => c.life_exp);
+	populationExtent = d3.extent(allYearCountries, c => c.population);
+
+	resizeGraph();
+	showGraph(svg, data);
+
+	window.addEventListener('resize', () => resizeGraph());
 }
 
 async function loadData() {
@@ -25,11 +37,19 @@ async function loadData() {
   }));
 }
 
-function prepareGraph() {
-  const svg = d3.select('#chart-area').append('svg');
-  return svg
-		.attr('width', width + margin.left + margin.right)
-		.attr('height', height + margin.top + margin.bottom);
+function getSize() {
+	const {width} = chartContainer.getBoundingClientRect();
+	return {
+		width,
+		height: Math.round(width * .6),
+	};
+}
+
+function resizeGraph() {
+	const size = getSize();
+  svg
+		.attr('width', size.width + margin.left + margin.right)
+		.attr('height', size.height + margin.top + margin.bottom);
 }
 
 /*
@@ -48,12 +68,10 @@ data: [
 */
 function showGraph(svg, data) {
 	let index = -1;
-	const allYearCountries = data.reduce((all, item) => all.concat(item.countries), []);
-	const incomeExtent = d3.extent(allYearCountries, c => c.income);
-	const lifeExpExtent = d3.extent(allYearCountries, c => c.life_exp);
-	const populationExtent = d3.extent(allYearCountries, c => c.population);
 
-	console.log(incomeExtent, lifeExpExtent, populationExtent);
+	const size = getSize();
+	const width = size.width - margin.left - margin.right;
+	const height = size.height - margin.top - margin.bottom;
 
   const scaleX = d3.scaleLog()
 		.base(10)
@@ -65,6 +83,8 @@ function showGraph(svg, data) {
 	const scaleRadius = d3.scaleLinear()
 		.domain(populationExtent)
 		.range([25 * Math.PI, 1500 * Math.PI]);
+	const continentScale = d3.scaleOrdinal(d3.schemeCategory10)
+		// .domain(Array.from(new Set(data[0].countries.map(c => c.continent))));
   const g = svg.append('g')
 		.attr('transform', `translate(${ margin.left }, ${ margin.top })`);
 	// TODO: check is it needed?
@@ -109,30 +129,25 @@ function showGraph(svg, data) {
 				index = 0;
 			}
 
-		const circles = g
-			.selectAll('circle')
-			.data(data[index].countries, item => item.country);
+			const circles = g
+				.selectAll('circle')
+				.data(data[index].countries, item => item.country);
 
-		// exits
-		circles.exit()
-			// TODO: add animation here
-			.remove();
+			// exits
+			circles.exit()
+				// TODO: add animation here
+				.remove();
 
-		// enters circles
-		circles
-			.enter()
-			.append('circle')
-			.merge(circles)
-			.attr('cx', d => scaleX(d.income))
-			.attr('cy', d => scaleY(d.life_exp))
-			// A/pi = r^2
-			.attr('r', d => {
-				// console.log(scaleRadius(d.population));
-				return Math.sqrt(scaleRadius(d.population) / Math.PI)
-				// return scaleRadius(d.population)
-			})
-			// .attr('height', d => (SVG_HEIGHT - GRAPH_MARGIN * 2) - scaleY(d.revenue))
-			.attr('fill', '#007041');
+			// enters circles
+			circles
+				.enter()
+				.append('circle')
+				.merge(circles)
+				.attr('cx', d => scaleX(d.income))
+				.attr('cy', d => scaleY(d.life_exp))
+				// A/pi = r^2
+				.attr('r', d => Math.sqrt(scaleRadius(d.population) / Math.PI))
+				.attr('fill', d => continentScale(d.continent));
 
 		}, 500);
   }
