@@ -92,72 +92,72 @@ function showGraph(svg, data) {
     .selectAll('circle')
 		.data([]);
 
-		// X Axis
-		const axisLeftCall = d3.axisBottom(scaleX)
-			.tickValues([400, 4000, 40000])
-			.tickFormat(d3.format('$'));
-		g.append('g')
-			.attr('class', 'x axis')
-			.attr('transform', `translate(${ 0 }, ${ height })`)
-			.call(axisLeftCall);
+	// X Axis
+	const axisLeftCall = d3.axisBottom(scaleX)
+		.tickValues([400, 4000, 40000])
+		.tickFormat(d3.format('$'));
+	g.append('g')
+		.attr('class', 'x axis')
+		.attr('transform', `translate(${ 0 }, ${ height })`)
+		.call(axisLeftCall);
 
-		// Y Axis
-		const axisBottomCall = d3.axisLeft(scaleY)
-			.tickFormat(d => +d);
-		g.append('g')
-			.attr('class', 'y axis')
-			.call(axisBottomCall);
+	// Y Axis
+	const axisBottomCall = d3.axisLeft(scaleY)
+		.tickFormat(d => +d);
+	g.append('g')
+		.attr('class', 'y axis')
+		.call(axisBottomCall);
 
-    g.append('text')
-      .attr('x', -height / 2)
-      .attr('y', -margin.left / 2)
-      .attr('text-anchor', 'middle')
-      .attr('transform', 'rotate(-90)')
-      .text('life expectancy');
+	g.append('text')
+		.attr('x', -height / 2)
+		.attr('y', -margin.left / 2)
+		.attr('text-anchor', 'middle')
+		.attr('transform', 'rotate(-90)')
+		.text('life expectancy');
 
-    g.append('text')
-      .attr('x', width / 2)
-      .attr('y', height + margin.bottom / 2)
-      .attr('text-anchor', 'middle')
-			.text('GDP-per-capita');
+	g.append('text')
+		.attr('x', width / 2)
+		.attr('y', height + margin.bottom / 2)
+		.attr('text-anchor', 'middle')
+		.text('GDP-per-capita');
 
-		const year = g.append('text')
-			// .classed('year-text', true)
-			.attr('x', width)
-			.attr('y', height - 10)
-			.attr('font-size', '30')
-			.attr('text-anchor', 'end')
-			.text(data[0].year);
+	const year = g.append('text')
+		// .classed('year-text', true)
+		.attr('x', width)
+		.attr('y', height - 10)
+		.attr('font-size', '30')
+		.attr('text-anchor', 'end')
+		.text(data[0].year);
 
-		d3.interval(() => {
-			// update data index
-			index ++;
-			if (index >= data.length) {
-				index = 0;
-			}
+	d3.interval(() => {
+		// update data index
+		index ++;
+		if (index >= data.length) {
+			index = 0;
+		}
 
-			// update year label
-			year.text(data[index].year);
+		// update year label
+		year.text(data[index].year);
 
-			const circles = g
-				.selectAll('circle')
-				.data(data[index].countries, item => item.country);
+		const circles = g
+			.selectAll('circle')
+			.data(data[index].countries, item => item.country);
 
-			// exits
-			circles.exit()
-				// TODO: add animation here
-				.remove();
+		// exits
+		circles.exit()
+			// TODO: add animation here
+			.remove();
 
-			// enters circles
-			circles
-				.enter()
-				.append('circle')
-				.merge(circles)
-				.attr('cx', d => scaleX(d.income))
-				.attr('cy', d => scaleY(d.life_exp))
-				// A/pi = r^2
-					.attr('r', d => Math.sqrt(scaleRadius(d.population) / Math.PI))
-				.attr('fill', d => continentScale(d.continent));
+		// enters circles
+		circles
+			.enter()
+			.append('circle')
+			.merge(circles)
+			.attr('cx', d => scaleX(d.income))
+			.attr('cy', d => scaleY(d.life_exp))
+			// A/pi = r^2
+				.attr('r', d => Math.sqrt(scaleRadius(d.population) / Math.PI))
+			.attr('fill', d => continentScale(d.continent));
 
 		}, 500);
   }
