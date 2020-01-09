@@ -119,8 +119,15 @@ function showGraph(svg, data) {
       .attr('x', width / 2)
       .attr('y', height + margin.bottom / 2)
       .attr('text-anchor', 'middle')
-      .text('GDP-per-capita');
+			.text('GDP-per-capita');
 
+		const year = g.append('text')
+			// .classed('year-text', true)
+			.attr('x', width)
+			.attr('y', height - 10)
+			.attr('font-size', '30')
+			.attr('text-anchor', 'end')
+			.text(data[0].year);
 
 		d3.interval(() => {
 			// update data index
@@ -128,6 +135,9 @@ function showGraph(svg, data) {
 			if (index >= data.length) {
 				index = 0;
 			}
+
+			// update year label
+			year.text(data[index].year);
 
 			const circles = g
 				.selectAll('circle')
@@ -146,7 +156,7 @@ function showGraph(svg, data) {
 				.attr('cx', d => scaleX(d.income))
 				.attr('cy', d => scaleY(d.life_exp))
 				// A/pi = r^2
-				.attr('r', d => Math.sqrt(scaleRadius(d.population) / Math.PI))
+					.attr('r', d => Math.sqrt(scaleRadius(d.population) / Math.PI))
 				.attr('fill', d => continentScale(d.continent));
 
 		}, 500);
