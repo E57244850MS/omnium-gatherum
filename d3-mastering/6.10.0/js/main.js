@@ -13,6 +13,7 @@ function formatAbbreviation(x) {
     }
     return s;
 }
+var formatTime = d3.timeFormat("%d/%m/%Y");
 
 var margin = { left:80, right:100, top:50, bottom:100 },
     height = 500 - margin.top - margin.bottom,
@@ -136,6 +137,8 @@ d3.json("data/coins.json").then(function(data) {
             selectedMinDate = values[0];
             selectedMaxDate = values[1];
             update();
+            $("#dateLabel1").text(formatTime(new Date(selectedMinDate)));
+            $("#dateLabel2").text(formatTime(new Date(selectedMaxDate)));
         },
     });
     // $( "#amount" ).val( "$" + $( "#slider-range" ).slider( "values", 0 ) +
