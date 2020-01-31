@@ -1,0 +1,19 @@
+<ul
+  #container
+  class="practice-list"
+>
+  <li
+  *ngFor="let item of items"
+  class="practice-list__item"
+  [ngStyle]="item.style"
+  >
+    <app-practice
+    [color]="item?.color"
+    [symbol]="item?.symbol"
+    [startTime]="item?.startTime"
+    [size]="item.size"
+    (singleClick)="onPracticeClick(item)"
+    (doubleClick)="onPracticeDoubleClick(item)"
+    ></app-practice>
+  </li>
+</ul>

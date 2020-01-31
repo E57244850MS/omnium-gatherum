@@ -1,0 +1,21 @@
+.practice-list {
+  // display: flex;
+  // flex-wrap: wrap;
+  list-style: none;
+  margin: 1rem;
+  padding: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  .practice-list__item {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+
+    transition: top 1.5s ease, left 1.5s ease;
+    cursor: pointer;
+  }
+}

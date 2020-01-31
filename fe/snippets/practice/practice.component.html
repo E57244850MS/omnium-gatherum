@@ -1,0 +1,13 @@
+<div
+  class="practice"
+  [ngClass]="{practice__started: startTime}"
+  [ngStyle]="containerStyles"
+  (click)="onClick($event)"
+>
+  <div class="bg" [ngStyle]="bgStyles"></div>
+  <div class="ani" *ngIf="startTime" [ngStyle]="aniStyles"></div>
+  <div
+    class="symbol"
+    [ngStyle]="{'font-size.px': fontSize}"
+  >{{symbol}}</div>
+</div>

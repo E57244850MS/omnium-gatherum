@@ -1,0 +1,60 @@
+.practice {
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: width 1.5s ease, height 1.5s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+	z-index: 0;
+
+  .symbol {
+    width: 75%;
+    height: 75%;
+    line-height: 1.2em;
+  }
+
+  // animation
+  @keyframes rotate {
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+
+	.ani {
+		position: absolute;
+		z-index: -2;
+		left: -50%;
+		top: -50%;
+		width: 200%;
+		height: 200%;
+		background-repeat: no-repeat;
+		background-size: 50% 50%, 50% 50%;
+		background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+    // custom colors
+		// background-image: linear-gradient(rgba(243, 195, 0,1), rgba(243, 195, 0,.25)), linear-gradient(transparent, rgba(243, 195, 0,.25)), linear-gradient(rgba(243, 195, 0,.25), rgba(243, 195, 0,1)), linear-gradient(rgba(243, 195, 0,.25), transparent);
+		animation: rotate 2s linear infinite;
+	}
+
+	.bg {
+		position: absolute;
+		z-index: -1;
+		left: 0;
+		top: 0;
+		width: calc(100%);
+		height: calc(100%);
+    // custom colors
+		// background-color: rgb(243, 195, 0);
+		border-radius: 50%;
+	}
+
+	&__started {
+		.bg {
+			left: .4rem;
+			top: .4rem;
+			width: calc(100% - .8rem);
+			height: calc(100% - .8rem);
+		}
+	}
+}
